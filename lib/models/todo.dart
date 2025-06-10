@@ -16,6 +16,7 @@ class Todo {
   });
 
   Map<String, dynamic> toMap() {
+    //แปลง Todo เป็น map เพื่อเก็บใน database
     return {
       'id': id,
       'title': title,
@@ -29,6 +30,8 @@ class Todo {
   }
 
   factory Todo.fromMap(Map<String, dynamic> map) {
+    //factory constructor พิเศษจะ return เป็น object
+    //สร้าง todo จาก map
     return Todo(
       id: map['id'],
       title: map['title'],
@@ -62,6 +65,6 @@ class Todo {
 
   @override
   String toString() {
-    return 'Todo{id: $id,title: $title,isComplete: $isComplete}';
+    return 'Todo{id: $id,title: $title,isComplete: $isCompleted}';
   }
 }
