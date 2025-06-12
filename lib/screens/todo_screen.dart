@@ -57,7 +57,7 @@ class _TodoScreenState extends State<TodoScreen> {
   void _toggleTodo(String id) {
     setState(() {
       int index = todos.indexWhere((todo) => todo.id == id);
-
+      //หาตำแหน่งของ id ที่ส่งเข้่ามา ถ้า -1 คือหาไม่เจอ
       if (index != -1) {
         todos[index] = todos[index].copyWith(
           isCompleted: !todos[index].isCompleted,
