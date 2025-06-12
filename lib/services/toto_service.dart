@@ -5,6 +5,21 @@ import '../models/todo.dart';
 class TodoService {
   static const String _todoKey = 'todos';
 
+  Future<List<Todo>?> getAllTodos() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final todosJson = prefs.getString(_todoKey);
+
+      if (todosJson == null || todosJson.isEmpty) {
+        return [];
+      }
+      final List<dynamic> todoList = json.decode(todosJson);
+      return todoList.map((json) => Todo.fromJson(json)).toList();
+    } catch (e) {
+      return null;
+    }
+  }
+
   //บันทึก todo ลง SharedProference
   static Future<void> saveTodos(List<Todo> todos) async {
     try {

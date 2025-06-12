@@ -15,33 +15,32 @@ class Todo {
     this.completeAt,
   });
 
-  Map<String, dynamic> toMap() {
-    //แปลง Todo เป็น map เพื่อเก็บใน database
+  //สร้าง Todo จาก  JSON
+  factory Todo.fromJson(Map<String, dynamic> json) {
+    return Todo(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      description: json['description'] as String? ?? '',
+      isCompleted: json['isCompleted'] as bool? ?? false,
+      createAt: DateTime.parse(json['crateAt'] as String),
+      completeAt: json['completeAt'] != null
+          ? DateTime.parse(json['completeAt'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    //แปลง Todo เป็น JSON
     return {
       'id': id,
       'title': title,
       'description': description,
       'isComplete': isCompleted,
-      'createAt':
-          createAt.millisecondsSinceEpoch, //แปลง datetime เป็นตัวเลขเพื่อเก็บ
+      'createAt': createAt
+          .toIso8601String(), //แปลง datetime เป็นตัวเลขเพื่อเก็บ
       'completeAt': completeAt
-          ?.millisecondsSinceEpoch, //ถ้า completeAt เป็นค่า null จะ return null ก่อนแปลง datetime เป็นตัวเลข
+          ?.toIso8601String(), //ถ้า completeAt เป็นค่า null จะ return null ก่อนแปลง datetime เป็นตัวเลข
     };
-  }
-
-  factory Todo.fromMap(Map<String, dynamic> map) {
-    //factory constructor พิเศษจะ return เป็น object
-    //สร้าง todo จาก map
-    return Todo(
-      id: map['id'],
-      title: map['title'],
-      description: map['description'] ?? '',
-      isCompleted: map['isCompleted'],
-      createAt: DateTime.fromMillisecondsSinceEpoch(map['createAt']),
-      completeAt: map['completeAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['completeAt'])
-          : null,
-    );
   }
 
   //property: newValue ?? originalValue ถ้า  newValue เป็น null ใช้ค่าเดิม ถ้าไม่ใช่ ให้ใช้ค่าใหม่
@@ -64,7 +63,45 @@ class Todo {
   }
 
   @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Todo &&
+        other.id == id &&
+        other.title == title &&
+        other.description == description &&
+        other.isCompleted == isCompleted &&
+        other.completeAt == completeAt;
+  }
+
+  @override
   String toString() {
-    return 'Todo{id: $id,title: $title,isComplete: $isCompleted}';
+    return 'Todo(id:$id,title:$title,description:$description,'
+        'isCompleted: $isCompleted,createAt:$createAt,completeAt: $completeAt)';
+  }
+
+  // ตรวจสอบว่าเป็น Todo ที่เสร็จแล้วหรือไม่
+  bool get isDone => isCompleted;
+
+  // คำนวณระยะเวลาที่ใช้ในการทำให้เสร็จ
+  Duration? get completeDuration {
+    if (completeAt == null) return null;
+    return completeAt!.difference(createAt);
+  }
+
+  // ตรวจสอบว่าเป็น Todo ที่สร้างวันนี้หรือไม่
+  bool get isCreateToday {
+    final now = DateTime.now();
+    return createAt.year == now.year &&
+        createAt.month == now.month &&
+        createAt.day == now.day;
+  }
+
+  // ตรวจสอบว่าเป็น Todo ที่เสร็จสิ้นวันนี้หรือไม่
+  bool get isCompleteToday {
+    if (completeAt == null) return false;
+    final now = DateTime.now();
+    return completeAt!.year == now.year &&
+        completeAt!.month == now.month &&
+        completeAt!.day == now.day;
   }
 }
