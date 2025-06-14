@@ -4,7 +4,7 @@ import '../models/todo.dart';
 
 class TodoService {
   static const String _todoKey = 'todos';
-
+  //ดึงข้อมูล todo ทั้งหมด
   Future<List<Todo>?> getAllTodos() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -20,23 +20,63 @@ class TodoService {
     }
   }
 
+  //ดึงข้อมูล todo ตาม ID
+  Future getTodoById(String id) async {
+    try {
+      final todos = await getAllTodos();
+      return todos?.firstWhere(
+        (todo) => todo.id == id,
+        orElse: () => throw Exception('Todo not found'),
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // เพิ่ม Todo ใหม่
+  Future<void> addTodo(Todo todo) async {
+    try {
+      final todos = await getAllTodos();
+
+      //ตรวจสอบว่ามี id ซ้ำหรือไม่
+      if (todos!.any((existingTodo) => existingTodo.id == todo.id)) {
+        throw Exception('Todo with this ID already exists');
+      }
+
+      todos.add(todo);
+      await _saveTodos(todos);
+    } catch (ex) {
+      throw Exception('Failed to add todo: $ex');
+    }
+  }
+
   //บันทึก todo ลง SharedProference
-  static Future<void> saveTodos(List<Todo> todos) async {
+  Future<void> _saveTodos(List<Todo> todos) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      //แปลง list <todo> เป็น list <map>
-      List<Map<String, dynamic>> todosJson = todos
-          .map((todo) => todo.toMap())
-          .toList();
+      final todoJson = json.encode(
+        (todos.map((todo) => todo.toJson()).toList()),
+      );
+      await prefs.setString(_todoKey, todoJson);
+    } catch (ex) {
+      throw Exception('Failed to save todos: $ex');
+    }
+  }
 
-      String todosString = jsonEncode(
-        todosJson,
-      ); // แปลงเป็น JSON String และบันทึก
+  //update todo
+  Future<void> updateTodo(Todo updatedTodo) async{
+    try{
+      final todos = await getAllTodos();
+      final index = todos!.indexWhere((todo)=>todo.id==updatedTodo.id);
+      
+      if(index== -1){
+        throw Exception('Todo not found');
+      }
+      todos[index] = updatedTodo;
+      await _saveTodos(todos);
+    }catch(e){
+      throw Exception('Faild to update')
 
-      await prefs.setString(_todoKey, todosString);
-      print('Saved ${todos.length} todos to storage');
-    } catch (e) {
-      print('Error saving todos $e');
     }
   }
 
