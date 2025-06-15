@@ -74,6 +74,18 @@ class Todo {
   }
 
   @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      title,
+      description,
+      isCompleted,
+      createAt,
+      completeAt,
+    );
+  }
+
+  @override
   String toString() {
     return 'Todo(id:$id,title:$title,description:$description,'
         'isCompleted: $isCompleted,createAt:$createAt,completeAt: $completeAt)';
@@ -81,6 +93,9 @@ class Todo {
 
   // ตรวจสอบว่าเป็น Todo ที่เสร็จแล้วหรือไม่
   bool get isDone => isCompleted;
+
+  //ตรวจสอบว่าเป็ฯ Todo ที่เสร็จแล้วหรือไม่
+  bool get isPending => !isCompleted;
 
   // คำนวณระยะเวลาที่ใช้ในการทำให้เสร็จ
   Duration? get completeDuration {
